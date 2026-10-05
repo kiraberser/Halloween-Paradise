@@ -25,3 +25,53 @@ class PreciosHalloweenTests(TestCase):
         data = self.client.get("/api/ticket-types/").json()
         self.assertEqual(len(data), 6)
         self.assertIn("modalidad", data[0])
+
+
+class BoletoUsuarioTests(TestCase):
+    def setUp(self):
+        from accounts.models import User
+
+        self.admin = User.objects.create_superuser("admin", "admin@hp.mx", "x")
+        self.ana = User.objects.create_user("ana@hp.mx", "ana@hp.mx", "x", first_name="Ana", genero="M")
+        self.luis = User.objects.create_user("luis@hp.mx", "luis@hp.mx", "x", first_name="Luis", genero="H")
+        self.gratis = TipoBoleto.objects.get(nombre="Mujer disfrazada · antes de 11 PM")
+
+    def test_folio_y_codigo_unicos(self):
+        a = VentaBoleto.objects.create(nombre="A", tipo=self.gratis)
+        b = VentaBoleto.objects.create(nombre="B", tipo=self.gratis)
+        self.assertNotEqual(a.codigo, b.codigo)
+        self.assertRegex(a.folio, r"^HP-[0-9A-F]{8}$")
+
+    def test_staff_asigna_boleto_y_lista_usuarios(self):
+        self.client.force_login(self.admin)
+        resp = self.client.post("/api/sales/", {"nombre": "Ana", "tipo": self.gratis.pk, "usuario": self.ana.pk})
+        self.assertEqual(resp.status_code, 201, resp.content)
+        folio = resp.json()["folio"]
+
+        # No se puede asignar un segundo boleto vigente.
+        dup = self.client.post("/api/sales/", {"nombre": "Ana", "tipo": self.gratis.pk, "usuario": self.ana.pk})
+        self.assertEqual(dup.status_code, 400)
+
+        data = self.client.get("/api/users/").json()["results"]
+        boletos = {u["first_name"]: u["boleto"] for u in data}
+        self.assertEqual(boletos["Ana"]["folio"], folio)
+        self.assertIsNone(boletos["Luis"])
+
+        con = self.client.get("/api/users/?boleto=con").json()["results"]
+        sin = self.client.get("/api/users/?boleto=sin").json()["results"]
+        self.assertEqual([u["first_name"] for u in con], ["Ana"])
+        self.assertEqual([u["first_name"] for u in sin], ["Luis"])
+
+        por_folio = self.client.get(f"/api/users/?search={folio}").json()["results"]
+        self.assertEqual([u["first_name"] for u in por_folio], ["Ana"])
+
+    def test_usuario_ve_su_boleto_y_no_la_lista(self):
+        venta = VentaBoleto.objects.create(nombre="Ana", tipo=self.gratis, usuario=self.ana)
+        self.client.force_login(self.ana)
+        self.assertEqual(self.client.get("/api/auth/me/").json()["boleto"]["folio"], venta.folio)
+        self.assertEqual(self.client.get("/api/users/").status_code, 403)
+
+    def test_cancelado_no_cuenta_como_boleto(self):
+        VentaBoleto.objects.create(nombre="Luis", tipo=self.gratis, usuario=self.luis, estado="cancelado")
+        self.client.force_login(self.luis)
+        self.assertIsNone(self.client.get("/api/auth/me/").json()["boleto"])

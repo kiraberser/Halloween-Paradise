@@ -9,7 +9,7 @@ type Foto = { id: number; nombre: string; foto_perfil: string; foto_impresion: s
 
 const MARCOS = ["#ff6b00", "#9333ea", "#ff9a3d", "#6b21a8"];
 
-export default function OfrendaPage() {
+export default function ImagenesPage() {
   const [fotos, setFotos] = useState<Foto[] | null>(null);
   const [error, setError] = useState("");
   const [porHoja, setPorHoja] = useState(6);
@@ -24,9 +24,9 @@ export default function OfrendaPage() {
     <div>
       <div className="no-print mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-4xl">Hoja de ofrenda</h1>
+          <h1 className="font-display text-4xl">Imágenes</h1>
           <p className="text-sm text-white/60">
-            {fotos ? `${fotos.length} fotos de invitados` : "Cargando…"} · Imprime en tamaño carta y recorta por la línea.
+            {fotos ? `${fotos.length} fotos de usuarios` : "Cargando…"} · Para imprimir, usa tamaño carta y recorta por la línea.
           </p>
         </div>
         <div className="flex items-center gap-3">

@@ -3,14 +3,15 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { BarChart3, Flower2, Home, LogOut, Receipt, Ticket } from "lucide-react";
+import { BarChart3, Home, Image as ImageIcon, LogOut, Receipt, Ticket, Users } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
 const NAV = [
   { href: "/dashboard", label: "Resumen", icon: BarChart3 },
+  { href: "/dashboard/usuarios", label: "Usuarios", icon: Users },
   { href: "/dashboard/ventas", label: "Ventas", icon: Ticket },
   { href: "/dashboard/gastos", label: "Costos y gastos", icon: Receipt },
-  { href: "/dashboard/ofrenda", label: "Ofrenda", icon: Flower2 },
+  { href: "/dashboard/imagenes", label: "Imágenes", icon: ImageIcon },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -66,9 +67,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <Link href="/" className="flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm text-white/60 hover:text-bone">
             <Home size={16} /> Sitio
           </Link>
-          <a href={`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/admin/`} target="_blank" rel="noopener noreferrer" className="flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm text-white/60 hover:text-bone">
-            ⚙ Admin Django
-          </a>
           <button onClick={() => { logout(); router.push("/"); }} className="flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-white/60 hover:text-bone">
             <LogOut size={16} /> Salir
           </button>

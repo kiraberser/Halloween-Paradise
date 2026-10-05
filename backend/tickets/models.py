@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -58,6 +60,7 @@ class VentaBoleto(models.Model):
     estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.PAGADO)
     fecha_venta = models.DateTimeField("fecha de venta", auto_now_add=True)
     notas = models.TextField(blank=True)
+    codigo = models.UUIDField("código", default=uuid.uuid4, unique=True, editable=False)
 
     class Meta:
         verbose_name = "venta de boleto"
@@ -70,6 +73,11 @@ class VentaBoleto(models.Model):
     @property
     def total(self):
         return (self.precio or 0) * self.cantidad
+
+    @property
+    def folio(self):
+        """Identificador corto que se muestra en el boleto, p. ej. HP-7K3D9QF2."""
+        return f"HP-{self.codigo.hex[:8].upper()}"
 
     def save(self, *args, **kwargs):
         if self.precio is None:

@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { Ticket } from "lucide-react";
 import { AuthShell, Label } from "@/components/AuthShell";
 import { BuyButton } from "@/components/BuyTicket";
 import { PhotoPicker } from "@/components/PhotoPicker";
+import { TicketModal } from "@/components/TicketModal";
 import { api, apiError } from "@/lib/api";
 import { useAuth, type User } from "@/lib/auth";
 import { GENEROS, mediaUrl } from "@/lib/event";
@@ -25,6 +27,7 @@ function Perfil() {
   const [foto, setFoto] = useState<File | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [sending, setSending] = useState(false);
+  const [verBoleto, setVerBoleto] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/login");
@@ -61,6 +64,24 @@ function Perfil() {
             : "Aún no subes tu foto para la ofrenda."
       }
     >
+      {user.boleto ? (
+        <button
+          type="button"
+          onClick={() => setVerBoleto(true)}
+          className="mb-5 flex w-full items-center gap-3 rounded-xl border border-green-400/40 bg-green-500/10 p-3 text-left transition hover:border-green-400"
+        >
+          <Ticket className="shrink-0 text-green-300" />
+          <span className="flex-1 text-sm">
+            <b className="block text-bone">Ver mi boleto</b>
+            <span className="text-white/70">{user.boleto.folio} · {user.boleto.estado_display}</span>
+          </span>
+        </button>
+      ) : (
+        <p className="mb-5 rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white/70">
+          Aún no tienes boleto asignado. Cuando el staff lo registre aparecerá aquí.
+        </p>
+      )}
+      {verBoleto && user.boleto && <TicketModal boleto={user.boleto} persona={user} onClose={() => setVerBoleto(false)} />}
       <form onSubmit={submit} className="grid gap-4">
         <PhotoPicker current={mediaUrl(user.foto_perfil)} onChange={(f, err) => { setFoto(f); setMsg(err ? { ok: false, text: err } : null); }} />
         <div className="grid gap-4 sm:grid-cols-2">

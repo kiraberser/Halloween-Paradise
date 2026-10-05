@@ -8,7 +8,7 @@ import { Pager } from "@/components/dashboard/Pager";
 
 type Tipo = { id: number; nombre: string; precio: string; activo: boolean };
 type Venta = {
-  id: number; nombre: string; tipo: number; tipo_nombre: string; precio: string; cantidad: number; total: string;
+  id: number; folio: string; nombre: string; tipo: number; tipo_nombre: string; precio: string; cantidad: number; total: string;
   genero: string; genero_display: string; canal: string; estado: string; fecha_venta: string; notas: string;
 };
 type Page = { count: number; next: string | null; previous: string | null; results: Venta[] };
@@ -115,10 +115,10 @@ export default function VentasPage() {
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-white/10">
-        <table className="w-full min-w-[760px] text-sm">
+        <table className="w-full min-w-[860px] text-sm">
           <thead className="bg-night-2 text-left text-xs uppercase tracking-wider text-white/50">
             <tr>
-              {["Fecha", "Nombre", "Tipo", "Cant.", "Precio", "Total", "Género", "Canal", "Estado", ""].map((h) => (
+              {["Fecha", "Folio", "Nombre", "Tipo", "Cant.", "Precio", "Total", "Género", "Canal", "Estado", ""].map((h) => (
                 <th key={h} className="px-3 py-3 font-medium">{h}</th>
               ))}
             </tr>
@@ -127,6 +127,7 @@ export default function VentasPage() {
             {data?.results.map((v) => (
               <tr key={v.id} className="hover:bg-white/[.02]">
                 <td className="px-3 py-2.5 text-white/60">{new Date(v.fecha_venta).toLocaleDateString("es-MX", { day: "2-digit", month: "short" })}</td>
+                <td className="px-3 py-2.5 font-mono text-xs text-white/60">{v.folio}</td>
                 <td className="px-3 py-2.5 font-medium">{v.nombre}</td>
                 <td className="px-3 py-2.5">{v.tipo_nombre}</td>
                 <td className="px-3 py-2.5 tabular-nums">{v.cantidad}</td>
@@ -149,7 +150,7 @@ export default function VentasPage() {
               </tr>
             ))}
             {data && !data.results.length && (
-              <tr><td colSpan={10} className="px-3 py-8 text-center text-white/40">No hay ventas registradas.</td></tr>
+              <tr><td colSpan={11} className="px-3 py-8 text-center text-white/40">No hay ventas registradas.</td></tr>
             )}
           </tbody>
         </table>

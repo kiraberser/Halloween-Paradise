@@ -3,6 +3,18 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { api, tokens } from "./api";
 
+export type Boleto = {
+  id: number;
+  folio: string;
+  codigo: string;
+  tipo_nombre: string;
+  precio: string;
+  estado: "pendiente" | "pagado" | "cancelado";
+  estado_display: string;
+  canal: string;
+  fecha_venta: string;
+};
+
 export type User = {
   id: number;
   username: string;
@@ -16,6 +28,7 @@ export type User = {
   foto_perfil: string | null;
   is_staff: boolean;
   date_joined: string;
+  boleto: Boleto | null;
 };
 
 type AuthState = {

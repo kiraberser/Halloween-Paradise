@@ -3,21 +3,27 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from core.storage import image_url
+from tickets.serializers import BoletoSerializer, boleto_activo
 
 from .models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
     genero_display = serializers.CharField(source="get_genero_display", read_only=True)
+    boleto = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
             "id", "username", "email", "first_name", "last_name", "telefono",
             "genero", "genero_display", "fecha_nacimiento", "foto_perfil",
-            "is_staff", "date_joined",
+            "is_staff", "date_joined", "boleto",
         )
         read_only_fields = ("id", "username", "is_staff", "date_joined")
+
+    def get_boleto(self, obj):
+        boleto = boleto_activo(obj.compras.all())
+        return BoletoSerializer(boleto).data if boleto else None
 
 
 class RegisterSerializer(serializers.ModelSerializer):
