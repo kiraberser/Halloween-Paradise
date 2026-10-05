@@ -6,9 +6,19 @@ from accounts.models import Genero
 
 
 class TipoBoleto(models.Model):
+    class Modalidad(models.TextChoices):
+        GRATIS = "gratis", "Gratis (con registro)"
+        PREVENTA = "preventa", "Preventa (compra por chat)"
+        PUERTA = "puerta", "Pago en puerta"
+
     nombre = models.CharField(max_length=60, unique=True)
     descripcion = models.CharField("descripción", max_length=255, blank=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    genero = models.CharField(
+        "aplica a", max_length=1, choices=[(Genero.MUJER, "Mujeres"), (Genero.HOMBRE, "Hombres")], blank=True,
+        help_text="Vacío = para todos",
+    )
+    modalidad = models.CharField(max_length=10, choices=Modalidad.choices, default=Modalidad.PREVENTA)
     cupo = models.PositiveIntegerField(null=True, blank=True, help_text="Vacío = sin límite")
     activo = models.BooleanField(default=True)
     orden = models.PositiveSmallIntegerField(default=0)
@@ -64,4 +74,6 @@ class VentaBoleto(models.Model):
     def save(self, *args, **kwargs):
         if self.precio is None:
             self.precio = self.tipo.precio
+        if self.genero == Genero.NO_DICE and self.tipo.genero:
+            self.genero = self.tipo.genero
         super().save(*args, **kwargs)

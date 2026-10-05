@@ -5,8 +5,9 @@ from .models import TipoBoleto, VentaBoleto
 
 @admin.register(TipoBoleto)
 class TipoBoletoAdmin(admin.ModelAdmin):
-    list_display = ("nombre", "precio", "cupo", "activo", "orden")
+    list_display = ("nombre", "precio", "genero", "modalidad", "cupo", "activo", "orden")
     list_editable = ("precio", "activo", "orden")
+    list_filter = ("activo", "genero", "modalidad")
 
 
 @admin.register(VentaBoleto)

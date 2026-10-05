@@ -6,7 +6,7 @@ from .models import TipoBoleto, VentaBoleto
 class TipoBoletoSerializer(serializers.ModelSerializer):
     class Meta:
         model = TipoBoleto
-        fields = ("id", "nombre", "descripcion", "precio", "cupo", "activo", "orden")
+        fields = ("id", "nombre", "descripcion", "precio", "genero", "modalidad", "cupo", "activo", "orden")
 
 
 class VentaBoletoSerializer(serializers.ModelSerializer):

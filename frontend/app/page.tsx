@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Camera, Music, PartyPopper, Shirt, Sparkles, Trophy } from "lucide-react";
-import { BuyButton } from "@/components/BuyTicket";
 import { Countdown } from "@/components/Countdown";
 import { Navbar } from "@/components/Navbar";
 import { PapelPicado } from "@/components/PapelPicado";
@@ -15,8 +14,11 @@ const INCLUYE = [
 ];
 
 const FAQ = [
-  { q: "¿Cómo compro mi boleto?", a: "Da clic en “Comprar boleto” y escríbenos por Messenger o Instagram. Te damos los datos de pago y te apartamos tu lugar." },
-  { q: "¿Es obligatorio ir disfrazado?", a: "No es obligatorio, pero sí muy recomendado: hay concurso de disfraces con premios." },
+  { q: "¿Tengo que registrarme?", a: "Sí. Todos los asistentes deben registrarse en la página, incluso quienes entran gratis. En la entrada te buscamos por tu nombre." },
+  { q: "¿Cómo compro la preventa?", a: "Regístrate, da clic en “Comprar preventa” y escríbenos por Messenger o Instagram con tu correo registrado. Te damos los datos de pago y te apartamos tu lugar." },
+  { q: "¿Las mujeres entran gratis?", a: "Las mujeres disfrazadas entran gratis toda la noche; si llegan antes de las 11:00 PM además reciben un drink de bienvenida con vaso. Sin disfraz pagan $80." },
+  { q: "¿Es obligatorio ir disfrazado?", a: "No, pero conviene: el disfraz te da entrada gratis (mujeres) o más barata (hombres en puerta $90 en lugar de $120). Además hay concurso de disfraces." },
+  { q: "¿Qué cuenta como disfraz?", a: "Disfraz completo o maquillaje de catrina/catrín. Unas orejitas o un accesorio no cuentan. El staff de la entrada tiene la última palabra." },
   { q: "¿Qué es la ofrenda?", a: "Si te registras y subes tu foto, la imprimimos y la colocamos en la decoración de Día de Muertos de la fiesta." },
   { q: "¿Hay edad mínima?", a: "Evento para mayores de edad. Se pedirá identificación en la entrada." },
 ];
@@ -46,9 +48,13 @@ export default function Home() {
                 La noche más oscura del año se vive en Martínez. Música, disfraces, ofrenda y un paraíso
                 lleno de calaveras. <b className="text-bone">{EVENT.dateLabel}.</b>
               </p>
+              <p className="rise rise-3 mt-4 inline-flex items-center gap-2 rounded-xl border border-witch-glow/50 bg-witch/25 px-4 py-2 text-sm text-bone">
+                <Sparkles size={16} className="shrink-0 text-pumpkin" />
+                <span><b>Mujeres disfrazadas entran gratis</b> + drink de bienvenida antes de las 11 PM</span>
+              </p>
               <div className="rise rise-4 mt-8 flex flex-wrap items-center gap-3">
-                <BuyButton className="btn-primary text-lg">Comprar boleto</BuyButton>
-                <Link href="/registro" className="btn-ghost">Súbete a la ofrenda</Link>
+                <Link href="/registro" className="btn-primary text-lg">Regístrate</Link>
+                <a href="#boletos" className="btn-ghost">Ver precios</a>
               </div>
               <div className="rise rise-4 mt-10">
                 <Countdown />
@@ -77,7 +83,7 @@ export default function Home() {
           </div>
           <div className="mt-6 flex items-center gap-3 rounded-2xl border border-dashed border-pumpkin/40 p-5 text-white/80">
             <Shirt className="shrink-0 text-pumpkin" />
-            <p><b className="text-bone">Dress code:</b> disfraz, catrina/catrín o total black. Sorpréndenos.</p>
+            <p><b className="text-bone">Dress code:</b> disfraz completo o maquillaje de catrina/catrín. Venir disfrazado te sale gratis o más barato.</p>
           </div>
         </section>
 
@@ -86,7 +92,7 @@ export default function Home() {
           <div className="mx-auto max-w-6xl px-4">
             <SectionTitle kicker="Boletos" title="Aparta tu lugar" />
             <p className="mt-3 max-w-xl text-white/65">
-              El cupo es limitado. Elige tu boleto y te atendemos por chat para confirmar tu compra.
+              Entre más temprano llegues y mejor disfrazado vengas, menos pagas. El cupo es limitado.
             </p>
             <div className="mt-10">
               <TicketSection />
@@ -157,8 +163,8 @@ export default function Home() {
         {/* CTA FINAL */}
         <section className="relative overflow-hidden border-t border-white/5 bg-witch/20 py-16 text-center">
           <h2 className="font-display text-4xl sm:text-5xl">¿Te atreves?</h2>
-          <p className="mt-2 text-white/70">Nos vemos el 31 de octubre en el paraíso.</p>
-          <BuyButton className="btn-primary mt-6 text-lg" />
+          <p className="mt-2 text-white/70">Regístrate, ven disfrazado y llega antes de las 11. Nos vemos el 31 de octubre.</p>
+          <Link href="/registro" className="btn-primary mt-6 text-lg">Regístrate</Link>
         </section>
       </main>
 

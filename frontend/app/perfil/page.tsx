@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { AuthShell, Label } from "@/components/AuthShell";
@@ -54,7 +55,7 @@ function Perfil() {
       title={`Hola, ${user.first_name || user.username}`}
       subtitle={
         params.get("bienvenida")
-          ? "Tu cuenta está lista. Ahora aparta tu boleto 🎃"
+          ? "Tu cuenta está lista 🎃 En la entrada te buscamos por tu nombre."
           : user.foto_perfil
             ? "Tu foto ya está en la lista para la ofrenda."
             : "Aún no subes tu foto para la ofrenda."
@@ -93,7 +94,11 @@ function Perfil() {
         )}
         <button className="btn-primary" disabled={sending}>{sending ? "Guardando…" : "Guardar cambios"}</button>
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-          <BuyButton className="btn-ghost" />
+          {user.genero === "M" ? (
+            <Link href="/#boletos" className="btn-ghost">Ver precios</Link>
+          ) : (
+            <BuyButton className="btn-ghost" />
+          )}
           <button type="button" onClick={() => { logout(); router.push("/"); }} className="text-sm text-white/60 hover:text-bone">
             Cerrar sesión
           </button>

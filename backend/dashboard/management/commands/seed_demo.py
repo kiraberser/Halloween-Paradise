@@ -1,8 +1,9 @@
-"""Crea tipos de boleto y datos de demostración para probar el dashboard.
+"""Crea datos de demostración (usuarios, ventas y gastos) para probar el dashboard.
+
+Los tipos de boleto los crea la migración tickets/0003; este comando solo los usa.
 
 Uso:
-    python manage.py seed_demo            # tipos de boleto + datos demo
-    python manage.py seed_demo --solo-tipos
+    python manage.py seed_demo
     python manage.py seed_demo --limpiar  # borra ventas, gastos y usuarios demo antes
 """
 import random
@@ -16,12 +17,8 @@ from accounts.models import Genero, User
 from finances.models import MovimientoFinanciero
 from tickets.models import TipoBoleto, VentaBoleto
 
-TIPOS = [
-    ("Preventa", "Precio especial por tiempo limitado", "250.00", 150, 1),
-    ("General", "Acceso general a la fiesta", "350.00", 300, 2),
-    ("VIP", "Zona VIP, cover con bebida y acceso preferente", "600.00", 50, 3),
-]
-PESOS = {"Preventa": 3, "General": 5, "VIP": 1}
+# Probabilidad relativa de cada modalidad en los datos demo.
+PESOS = {"gratis": 4, "preventa": 3, "puerta": 2}
 
 NOMBRES = ["Ana", "Luis", "María", "José", "Fernanda", "Carlos", "Valeria", "Diego", "Sofía", "Jorge",
            "Daniela", "Miguel", "Paola", "Ricardo", "Ximena", "Andrés", "Karla", "Emilio", "Regina", "Óscar"]
@@ -43,23 +40,14 @@ GASTOS = [
 
 
 class Command(BaseCommand):
-    help = "Siembra tipos de boleto y datos de demostración."
+    help = "Siembra datos de demostración."
 
     def add_arguments(self, parser):
-        parser.add_argument("--solo-tipos", action="store_true")
         parser.add_argument("--limpiar", action="store_true")
         parser.add_argument("--usuarios", type=int, default=60)
         parser.add_argument("--ventas", type=int, default=90)
 
     def handle(self, *args, **opts):
-        for nombre, desc, precio, cupo, orden in TIPOS:
-            TipoBoleto.objects.update_or_create(
-                nombre=nombre, defaults={"descripcion": desc, "precio": Decimal(precio), "cupo": cupo, "orden": orden}
-            )
-        self.stdout.write(self.style.SUCCESS(f"{len(TIPOS)} tipos de boleto listos."))
-        if opts["solo_tipos"]:
-            return
-
         if opts["limpiar"]:
             VentaBoleto.objects.all().delete()
             MovimientoFinanciero.objects.all().delete()
@@ -87,16 +75,18 @@ class Command(BaseCommand):
                 User.objects.filter(pk=user.pk).update(date_joined=ahora - timedelta(days=rnd.randint(0, 25)))
             usuarios.append(user)
 
-        tipos = list(TipoBoleto.objects.all())
+        tipos = list(TipoBoleto.objects.filter(activo=True))
         canales = [VentaBoleto.Canal.MESSENGER] * 5 + [VentaBoleto.Canal.INSTAGRAM] * 4 + [VentaBoleto.Canal.TAQUILLA]
         estados = [VentaBoleto.Estado.PAGADO] * 8 + [VentaBoleto.Estado.PENDIENTE, VentaBoleto.Estado.CANCELADO]
         for _ in range(opts["ventas"]):
-            usuario = rnd.choice(usuarios + [None] * 20)
+            usuario = rnd.choice(usuarios)
+            # Solo tipos que correspondan al género del usuario (o sin género).
+            opciones = [t for t in tipos if not t.genero or t.genero == usuario.genero] or tipos
             venta = VentaBoleto.objects.create(
-                nombre=usuario.get_full_name() if usuario else f"{rnd.choice(NOMBRES)} {rnd.choice(APELLIDOS)}",
-                tipo=rnd.choices(tipos, weights=[PESOS.get(t.nombre, 2) for t in tipos])[0],
-                cantidad=rnd.choice([1, 1, 1, 2, 2, 3, 4]),
-                genero=usuario.genero if usuario else rnd.choice(generos),
+                nombre=usuario.get_full_name(),
+                tipo=rnd.choices(opciones, weights=[PESOS.get(t.modalidad, 2) for t in opciones])[0],
+                cantidad=1,
+                genero=usuario.genero,
                 usuario=usuario,
                 canal=rnd.choice(canales),
                 estado=rnd.choice(estados),

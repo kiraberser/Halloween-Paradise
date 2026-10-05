@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useAuth } from "@/lib/auth";
 import { mediaUrl } from "@/lib/event";
-import { BuyButton } from "./BuyTicket";
 
 export function Navbar() {
   const { user, loading } = useAuth();
@@ -16,7 +15,6 @@ export function Navbar() {
           Halloween <span className="text-witch-glow">Paradise</span>
         </Link>
         <div className="flex items-center gap-1.5 text-sm sm:gap-2">
-          <Link href="/#boletos" className="hidden px-3 py-2 text-white/75 hover:text-bone md:inline">Boletos</Link>
           <Link href="/#ofrenda" className="hidden px-3 py-2 text-white/75 hover:text-bone md:inline">Ofrenda</Link>
           <Link href="/#faq" className="hidden px-3 py-2 text-white/75 hover:text-bone md:inline">FAQ</Link>
           {!loading &&
@@ -43,7 +41,7 @@ export function Navbar() {
                 <Link href="/registro" className="btn-ghost hidden !px-4 !py-1.5 sm:inline-flex">Registrarme</Link>
               </>
             ))}
-          <BuyButton className="btn-primary whitespace-nowrap !px-3 !py-2 text-sm sm:!px-4"><span className="sm:hidden">Boletos</span><span className="hidden sm:inline">Comprar boleto</span></BuyButton>
+          <Link href="/#boletos" className="btn-primary whitespace-nowrap !px-3 !py-2 text-sm sm:!px-4"><span className="sm:hidden">Precios</span><span className="hidden sm:inline">Ver precios</span></Link>
         </div>
       </nav>
     </header>
