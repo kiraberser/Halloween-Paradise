@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AuthShell, Label } from "@/components/AuthShell";
-import { PhotoPicker } from "@/components/PhotoPicker";
 import { api, apiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { GENEROS } from "@/lib/event";
@@ -12,7 +11,6 @@ import { GENEROS } from "@/lib/event";
 export default function RegistroPage() {
   const router = useRouter();
   const { login } = useAuth();
-  const [foto, setFoto] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
 
@@ -26,7 +24,6 @@ export default function RegistroPage() {
     }
     form.delete("password2");
     if (!form.get("fecha_nacimiento")) form.delete("fecha_nacimiento");
-    if (foto) form.set("foto_perfil", foto);
     setSending(true);
     try {
       await api.post("/auth/register/", form);
@@ -40,9 +37,8 @@ export default function RegistroPage() {
   };
 
   return (
-    <AuthShell title="Únete al paraíso" subtitle="Crea tu cuenta y sube tu foto para la ofrenda.">
+    <AuthShell title="Únete al paraíso" subtitle="Crea tu cuenta para entrar a la fiesta. Tu foto la subes después en tu perfil.">
       <form onSubmit={submit} className="grid gap-4">
-        <PhotoPicker onChange={(f, err) => { setFoto(f); setError(err ?? ""); }} />
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <Label htmlFor="first_name">Nombre</Label>

@@ -58,7 +58,7 @@ function Perfil() {
       title={`Hola, ${user.first_name || user.username}`}
       subtitle={
         params.get("bienvenida")
-          ? "Tu cuenta está lista 🎃 En la entrada te buscamos por tu nombre."
+          ? "Tu cuenta está lista 🎃 Sube aquí tu foto de perfil."
           : user.foto_perfil
             ? "Tu foto ya está en la lista para la ofrenda."
             : "Aún no subes tu foto para la ofrenda."

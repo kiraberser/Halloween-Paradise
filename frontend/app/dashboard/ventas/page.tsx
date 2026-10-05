@@ -40,7 +40,8 @@ export default function VentasPage() {
   }, [page, estado, q]);
 
   useEffect(() => {
-    api.get<Tipo[]>("/ticket-types/").then((r) => setTipos(r.data));
+    // El staff recibe también los tipos desactivados; para registrar ventas solo sirven los activos.
+    api.get<Tipo[]>("/ticket-types/").then((r) => setTipos(r.data.filter((t) => t.activo)));
   }, []);
   useEffect(load, [load]);
 
@@ -85,7 +86,7 @@ export default function VentasPage() {
         <input name="nombre" required placeholder="Nombre del comprador" className="field lg:col-span-2" />
         <select name="tipo" required className="field" value={tipoSel} onChange={(e) => setTipoSel(Number(e.target.value) || "")}>
           <option value="">Tipo de boleto…</option>
-          {tipos.map((t) => <option key={t.id} value={t.id}>{t.nombre} — {money(t.precio)}</option>)}
+          {tipos.map((t) => <option key={t.id} value={t.id}>{t.nombre} — {Number(t.precio) === 0 ? "Gratis" : money(t.precio)}</option>)}
         </select>
         <select name="genero" className="field" defaultValue="N">
           {GENEROS.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
