@@ -13,6 +13,7 @@ export type Boleto = {
   estado_display: string;
   canal: string;
   fecha_venta: string;
+  ingreso: string | null;
 };
 
 export type User = {

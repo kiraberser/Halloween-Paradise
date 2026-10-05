@@ -125,7 +125,7 @@ export default function UsuariosPage() {
                       <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/50">Sin boleto</span>
                     ) : b.estado === "pagado" ? (
                       <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-green-500/15 px-2.5 py-1 text-xs font-semibold text-green-300">
-                        <CheckCircle2 size={13} /> Sí · {b.folio}
+                        <CheckCircle2 size={13} /> Sí · {b.folio}{b.ingreso ? " · entró" : ""}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-pumpkin/15 px-2.5 py-1 text-xs font-semibold text-pumpkin-soft">

@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { BarChart3, Home, Image as ImageIcon, LogOut, Receipt, Ticket, Users } from "lucide-react";
+import { BarChart3, Home, Image as ImageIcon, LogOut, Receipt, ScanLine, Ticket, Users } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
 const NAV = [
   { href: "/dashboard", label: "Resumen", icon: BarChart3 },
+  { href: "/dashboard/escanear", label: "Escanear QR", icon: ScanLine },
   { href: "/dashboard/usuarios", label: "Usuarios", icon: Users },
   { href: "/dashboard/ventas", label: "Ventas", icon: Ticket },
   { href: "/dashboard/gastos", label: "Costos y gastos", icon: Receipt },

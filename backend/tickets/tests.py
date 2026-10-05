@@ -75,3 +75,56 @@ class BoletoUsuarioTests(TestCase):
         VentaBoleto.objects.create(nombre="Luis", tipo=self.gratis, usuario=self.luis, estado="cancelado")
         self.client.force_login(self.luis)
         self.assertIsNone(self.client.get("/api/auth/me/").json()["boleto"])
+
+
+class EntradaTests(TestCase):
+    def setUp(self):
+        from accounts.models import User
+
+        self.admin = User.objects.create_superuser("admin", "admin@hp.mx", "x")
+        self.ana = User.objects.create_user("ana@hp.mx", "ana@hp.mx", "x", first_name="Ana", genero="M")
+        tipo = TipoBoleto.objects.get(nombre="Mujer sin disfraz")
+        self.venta = VentaBoleto.objects.create(nombre="Ana", tipo=tipo, usuario=self.ana)
+        self.client.force_login(self.admin)
+
+    def test_lookup_por_qr_y_por_folio(self):
+        # El QR del boleto contiene "HP:<uuid>".
+        por_qr = self.client.get(f"/api/sales/lookup/?codigo=HP:{self.venta.codigo}")
+        self.assertEqual(por_qr.status_code, 200)
+        self.assertEqual(por_qr.json()["email"], "ana@hp.mx")
+        por_folio = self.client.get(f"/api/sales/lookup/?codigo={self.venta.folio.lower()}")
+        self.assertEqual(por_folio.json()["id"], self.venta.id)
+        self.assertEqual(self.client.get("/api/sales/lookup/?codigo=hola").status_code, 400)
+        self.assertEqual(self.client.get("/api/sales/lookup/?codigo=HP-00000000").status_code, 404)
+
+    def test_checkin_una_sola_vez(self):
+        url = f"/api/sales/{self.venta.id}/checkin/"
+        ok = self.client.post(url)
+        self.assertEqual(ok.status_code, 200)
+        self.assertIsNotNone(ok.json()["ingreso"])
+        self.assertEqual(ok.json()["ingreso_por_nombre"], "admin")
+        repetido = self.client.post(url)
+        self.assertEqual(repetido.status_code, 409)
+        self.assertIn("ya se usó", repetido.json()["detail"])
+
+        self.assertEqual(self.client.delete(url).status_code, 200)
+        self.venta.refresh_from_db()
+        self.assertIsNone(self.venta.ingreso)
+        self.assertEqual(self.client.get("/api/dashboard/kpis/").json()["ingresaron"], 0)
+
+    def test_pendiente_requiere_cobro(self):
+        self.venta.estado = "pendiente"
+        self.venta.save()
+        url = f"/api/sales/{self.venta.id}/checkin/"
+        self.assertEqual(self.client.post(url).status_code, 400)
+        cobrado = self.client.post(url, {"cobrar": True}, content_type="application/json")
+        self.assertEqual(cobrado.status_code, 200)
+        self.assertEqual(cobrado.json()["estado"], "pagado")
+        self.assertEqual(self.client.get("/api/dashboard/kpis/").json()["ingresaron"], 1)
+
+    def test_cancelado_no_entra_y_solo_staff(self):
+        self.venta.estado = "cancelado"
+        self.venta.save()
+        self.assertEqual(self.client.post(f"/api/sales/{self.venta.id}/checkin/").status_code, 400)
+        self.client.force_login(self.ana)
+        self.assertEqual(self.client.get(f"/api/sales/lookup/?codigo={self.venta.codigo}").status_code, 403)

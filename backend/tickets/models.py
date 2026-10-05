@@ -61,6 +61,11 @@ class VentaBoleto(models.Model):
     fecha_venta = models.DateTimeField("fecha de venta", auto_now_add=True)
     notas = models.TextField(blank=True)
     codigo = models.UUIDField("código", default=uuid.uuid4, unique=True, editable=False)
+    ingreso = models.DateTimeField("hora de entrada", null=True, blank=True)
+    ingreso_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="entradas_registradas", verbose_name="entrada registrada por",
+    )
 
     class Meta:
         verbose_name = "venta de boleto"

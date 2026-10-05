@@ -8,7 +8,7 @@ import { EVENT, money } from "@/lib/event";
 
 type Row = Record<string, string | number>;
 type KPIs = {
-  boletos_vendidos: number; boletos_pendientes: number; num_ventas: number; ingresos: string; costos: string;
+  boletos_vendidos: number; boletos_pendientes: number; ingresaron: number; num_ventas: number; ingresos: string; costos: string;
   gastos: string; utilidad: string; ticket_promedio: string; usuarios_registrados: number; fotos_subidas: number;
   capacidad: number; ocupacion_pct: number;
 };
@@ -63,7 +63,7 @@ export default function DashboardPage() {
       </header>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
-        <Kpi icon={Ticket} label="Boletos vendidos" value={kpis.boletos_vendidos.toLocaleString("es-MX")} hint={`${kpis.boletos_pendientes} pendientes`} accent />
+        <Kpi icon={Ticket} label="Boletos vendidos" value={kpis.boletos_vendidos.toLocaleString("es-MX")} hint={`${kpis.ingresaron} ya entraron · ${kpis.boletos_pendientes} pendientes`} accent />
         <Kpi icon={DollarSign} label="Ingresos" value={money(kpis.ingresos)} hint={`Promedio ${money(kpis.ticket_promedio)}`} />
         <Kpi icon={Wallet} label="Costos" value={money(kpis.costos)} />
         <Kpi icon={Receipt} label="Gastos" value={money(kpis.gastos)} />

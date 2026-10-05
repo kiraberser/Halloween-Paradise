@@ -98,7 +98,7 @@ export function TicketModal({ boleto, persona, onClose }: { boleto: Boleto; pers
         {/* QR y folio */}
         <section className="flex items-center gap-5 px-6">
           <div className={`rounded-xl bg-white p-2 ring-1 ring-night/10 ${aceptada ? "" : "opacity-40"}`}>
-            <QRCodeSVG value={boleto.folio} size={104} fgColor="#0b0b0f" level="M" />
+            <QRCodeSVG value={`HP:${boleto.codigo}`} size={104} fgColor="#0b0b0f" level="M" />
           </div>
           <div>
             <p className="text-[11px] uppercase tracking-[0.2em] text-night/50">Folio</p>

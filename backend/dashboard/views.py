@@ -67,6 +67,9 @@ class KPIsView(StaffAPIView):
             "gastos": gastos,
             "utilidad": ingresos - costos - gastos,
             "ticket_promedio": (ingresos / ventas["boletos"]).quantize(Decimal("0.01")) if ventas["boletos"] else CERO,
+            "ingresaron": VentaBoleto.objects.filter(ingreso__isnull=False).aggregate(
+                t=Coalesce(Sum("cantidad"), 0)
+            )["t"],
             "usuarios_registrados": User.objects.filter(is_staff=False).count(),
             "fotos_subidas": User.objects.exclude(foto_perfil="").exclude(foto_perfil__isnull=True).count(),
             "capacidad": capacidad,
