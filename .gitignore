@@ -1,0 +1,22 @@
+.env
+.env.local
+
+# Python
+__pycache__/
+*.pyc
+backend/.venv/
+backend/db.sqlite3
+backend/media/
+backend/staticfiles/
+
+# Node
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+.DS_Store
+.vscode/
+.idea/
+
+# Herramientas locales
+.claude/

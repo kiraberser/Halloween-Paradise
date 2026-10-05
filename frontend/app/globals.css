@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+:root {
+  --pumpkin: #ff6b00;
+  --pumpkin-soft: #ff9a3d;
+  --night: #0b0b0f;
+  --night-2: #15121c;
+  --witch: #6b21a8;
+  --witch-glow: #9333ea;
+  --bone: #fafafa;
+}
+
+@theme inline {
+  --color-pumpkin: var(--pumpkin);
+  --color-pumpkin-soft: var(--pumpkin-soft);
+  --color-night: var(--night);
+  --color-night-2: var(--night-2);
+  --color-witch: var(--witch);
+  --color-witch-glow: var(--witch-glow);
+  --color-bone: var(--bone);
+  --font-display: var(--font-wet-paint);
+  --font-sans: var(--font-bricolage);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--night);
+  color: var(--bone);
+  font-family: var(--font-bricolage), system-ui, sans-serif;
+}
+
+/* Grano sutil sobre todo el sitio */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.glow-pumpkin {
+  text-shadow: 0 0 18px rgba(255, 107, 0, 0.55), 0 0 60px rgba(255, 107, 0, 0.25);
+}
+
+.glow-witch {
+  box-shadow: 0 0 0 1px rgba(147, 51, 234, 0.35), 0 10px 40px -10px rgba(147, 51, 234, 0.55);
+}
+
+.moon {
+  background: radial-gradient(circle at 35% 35%, #fff7e6 0%, #ffd29a 35%, #ff9a3d 60%, transparent 72%);
+  filter: blur(0.5px);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-14px) rotate(3deg); }
+}
+.animate-float { animation: float 6s ease-in-out infinite; }
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-1.2deg); }
+  50% { transform: rotate(1.2deg); }
+}
+.animate-sway { animation: sway 5s ease-in-out infinite; transform-origin: top center; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.rise { animation: rise 0.8s cubic-bezier(.2,.7,.2,1) both; }
+.rise-1 { animation-delay: .1s; }
+.rise-2 { animation-delay: .25s; }
+.rise-3 { animation-delay: .4s; }
+.rise-4 { animation-delay: .55s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float, .animate-sway, .rise { animation: none; }
+}
+
+@layer components {
+  .field {
+    @apply w-full rounded-lg border border-white/15 bg-night-2 px-3 py-2.5 text-bone placeholder-white/35 outline-none transition focus:border-pumpkin focus:ring-2 focus:ring-pumpkin/30;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-pumpkin px-6 py-3 font-semibold text-night transition hover:bg-pumpkin-soft hover:shadow-[0_0_30px_rgba(255,107,0,.5)] active:scale-[.98] disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-5 py-2.5 font-medium text-bone transition hover:border-witch-glow hover:bg-witch/20;
+  }
+}
+
+/* Impresión de la hoja de ofrenda */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white !important; color: black !important; }
+  .grain::after { display: none; }
+  @page { size: letter; margin: 10mm; }
+}
