@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CheckCircle2, Clock3, Eye, Plus, Search, X } from "lucide-react";
+import { CheckCircle2, Clock3, Eye, Plus, Search, ShieldCheck, ShieldOff, X } from "lucide-react";
 import { Pager } from "@/components/dashboard/Pager";
 import { TicketModal } from "@/components/TicketModal";
 import { api, apiError } from "@/lib/api";
-import type { Boleto, User } from "@/lib/auth";
+import { useAuth, type Boleto, type User } from "@/lib/auth";
 import { mediaUrl, money } from "@/lib/event";
 
 type Page = { count: number; next: string | null; previous: string | null; results: User[] };
@@ -16,11 +16,13 @@ const FILTROS = [
   ["con", "Con boleto"],
   ["pendiente", "Pendientes"],
   ["sin", "Sin boleto"],
+  ["staff", "Staff"],
 ] as const;
 
 const ESTADOS = [["pagado", "Pagado"], ["pendiente", "Pendiente"], ["cancelado", "Cancelado"]];
 
 export default function UsuariosPage() {
+  const { user: yo } = useAuth();
   const [data, setData] = useState<Page | null>(null);
   const [tipos, setTipos] = useState<Tipo[]>([]);
   const [page, setPage] = useState(1);
@@ -39,7 +41,14 @@ export default function UsuariosPage() {
 
   const load = useCallback(() => {
     api
-      .get<Page>("/users/", { params: { page, boleto: filtro || undefined, search: busqueda || undefined } })
+      .get<Page>("/users/", {
+        params: {
+          page,
+          rol: filtro === "staff" ? "staff" : undefined,
+          boleto: filtro && filtro !== "staff" ? filtro : undefined,
+          search: busqueda || undefined,
+        },
+      })
       .then((r) => setData(r.data))
       .catch((e) => setError(apiError(e)));
   }, [page, filtro, busqueda]);
@@ -53,6 +62,22 @@ export default function UsuariosPage() {
     setError("");
     try {
       await api.patch(`/sales/${boleto.id}/`, { estado });
+      load();
+    } catch (e) {
+      setError(apiError(e));
+    }
+  };
+
+  const cambiarStaff = async (u: User) => {
+    const dar = !u.is_staff;
+    const nombre = `${u.first_name} ${u.last_name}`.trim() || u.email;
+    const pregunta = dar
+      ? `¿Dar acceso al dashboard a ${nombre}? Podrá ver todo, registrar ventas y gastos, y escanear entradas.`
+      : `¿Quitar el acceso al dashboard a ${nombre}?`;
+    if (!confirm(pregunta)) return;
+    setError("");
+    try {
+      await api.post(`/users/${u.id}/staff/`, { is_staff: dar });
       load();
     } catch (e) {
       setError(apiError(e));
@@ -110,7 +135,14 @@ export default function UsuariosPage() {
                         <span className="grid h-9 w-9 place-items-center rounded-full bg-witch text-xs font-bold">{u.first_name?.[0] ?? "?"}</span>
                       )}
                       <div className="min-w-0">
-                        <p className="truncate font-medium">{u.first_name} {u.last_name}</p>
+                        <p className="flex items-center gap-2 truncate font-medium">
+                          {u.first_name} {u.last_name}
+                          {u.is_superuser ? (
+                            <span className="rounded-full bg-pumpkin px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-night">Admin</span>
+                          ) : u.is_staff ? (
+                            <span className="rounded-full bg-witch px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-bone">Staff</span>
+                          ) : null}
+                        </p>
                         <p className="truncate text-xs text-white/50">{u.email}</p>
                       </div>
                     </div>
@@ -145,7 +177,15 @@ export default function UsuariosPage() {
                       </select>
                     )}
                   </td>
-                  <td className="px-3 py-2.5 text-right">
+                  <td className="space-x-2 whitespace-nowrap px-3 py-2.5 text-right">
+                    {yo?.is_superuser && !u.is_superuser && u.id !== yo.id && (
+                      <button
+                        onClick={() => cambiarStaff(u)}
+                        className="inline-flex items-center gap-1 rounded-full border border-white/15 px-2.5 py-1.5 text-xs text-white/70 transition hover:border-witch-glow hover:text-bone"
+                      >
+                        {u.is_staff ? <><ShieldOff size={13} /> Quitar staff</> : <><ShieldCheck size={13} /> Hacer staff</>}
+                      </button>
+                    )}
                     {b ? (
                       <button onClick={() => setVer({ boleto: b, user: u })} className="btn-ghost whitespace-nowrap !px-3 !py-1.5 text-xs">
                         <Eye size={14} /> Ver boleto

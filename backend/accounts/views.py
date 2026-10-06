@@ -1,9 +1,13 @@
 from django.db.models import CharField, Exists, OuterRef, Prefetch, Q
 from django.db.models.functions import Cast
-from rest_framework import generics, permissions
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from core.permissions import IsSuperuser
 from tickets.models import VentaBoleto
 
 from .models import User
@@ -42,7 +46,7 @@ class FotosOfrendaView(generics.ListAPIView):
 class UsuariosAdminView(generics.ListAPIView):
     """Usuarios registrados con su boleto vigente (solo staff).
 
-    Filtros: ``?boleto=con|pendiente|sin`` y ``?search=`` (nombre, correo, teléfono o folio HP-XXXXXXXX).
+    Filtros: ``?boleto=con|pendiente|sin``, ``?rol=staff`` y ``?search=`` (nombre, correo, teléfono o folio).
     """
 
     serializer_class = UserSerializer
@@ -54,10 +58,12 @@ class UsuariosAdminView(generics.ListAPIView):
         pagado = Exists(ventas.filter(estado=VentaBoleto.Estado.PAGADO))
         vigente = Exists(ventas.exclude(estado=VentaBoleto.Estado.CANCELADO))
         qs = (
-            User.objects.filter(is_staff=False)
-            .prefetch_related(Prefetch("compras", queryset=VentaBoleto.objects.select_related("tipo")))
+            User.objects.prefetch_related(Prefetch("compras", queryset=VentaBoleto.objects.select_related("tipo")))
             .order_by("-date_joined")
         )
+
+        if self.request.query_params.get("rol") == "staff":
+            qs = qs.filter(is_staff=True)
 
         filtro = self.request.query_params.get("boleto")
         if filtro == "con":
@@ -80,3 +86,20 @@ class UsuariosAdminView(generics.ListAPIView):
                 cond |= Exists(por_folio)
             qs = qs.filter(cond)
         return qs
+
+
+class StaffToggleView(APIView):
+    """El admin da o quita el permiso de staff (acceso al dashboard). ``{"is_staff": true|false}``"""
+
+    permission_classes = [IsSuperuser]
+
+    def post(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        if user == request.user:
+            return Response({"detail": "No puedes cambiar tus propios permisos."}, status=status.HTTP_400_BAD_REQUEST)
+        if user.is_superuser:
+            return Response({"detail": "No se pueden cambiar los permisos de otro administrador."},
+                            status=status.HTTP_400_BAD_REQUEST)
+        user.is_staff = bool(request.data.get("is_staff"))
+        user.save(update_fields=["is_staff"])
+        return Response(UserSerializer(user, context={"request": request}).data)

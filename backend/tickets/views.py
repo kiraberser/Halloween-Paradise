@@ -4,11 +4,11 @@ from django.db import transaction
 from django.db.models import CharField
 from django.db.models.functions import Cast
 from django.utils import timezone
-from rest_framework import permissions, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from core.permissions import IsStaffOrReadOnly
+from core.permissions import IsStaffNoDelete, IsStaffOrReadOnly
 
 from .models import TipoBoleto, VentaBoleto
 from .serializers import EntradaSerializer, TipoBoletoSerializer, VentaBoletoSerializer
@@ -29,7 +29,7 @@ class TipoBoletoViewSet(viewsets.ModelViewSet):
 class VentaBoletoViewSet(viewsets.ModelViewSet):
     queryset = VentaBoleto.objects.select_related("tipo")
     serializer_class = VentaBoletoSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsStaffNoDelete]
     filterset_fields = {
         "estado": ["exact"],
         "tipo": ["exact"],

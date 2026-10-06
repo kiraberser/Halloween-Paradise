@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { api, apiError } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import { GENEROS, money } from "@/lib/event";
 import { Pager } from "@/components/dashboard/Pager";
 
@@ -22,6 +23,8 @@ const ESTADO_COLOR: Record<string, string> = {
 };
 
 export default function VentasPage() {
+  // Solo el admin puede eliminar registros; el staff crea y edita.
+  const puedeBorrar = !!useAuth().user?.is_superuser;
   const [tipos, setTipos] = useState<Tipo[]>([]);
   const [data, setData] = useState<Page | null>(null);
   const [page, setPage] = useState(1);
@@ -146,7 +149,7 @@ export default function VentasPage() {
                   </select>
                 </td>
                 <td className="px-3 py-2.5">
-                  <button onClick={() => borrar(v)} className="text-white/40 hover:text-red-400" aria-label="Eliminar"><Trash2 size={16} /></button>
+                  {puedeBorrar && <button onClick={() => borrar(v)} className="text-white/40 hover:text-red-400" aria-label="Eliminar"><Trash2 size={16} /></button>}
                 </td>
               </tr>
             ))}

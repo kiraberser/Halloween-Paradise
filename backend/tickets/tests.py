@@ -60,7 +60,8 @@ class BoletoUsuarioTests(TestCase):
         con = self.client.get("/api/users/?boleto=con").json()["results"]
         sin = self.client.get("/api/users/?boleto=sin").json()["results"]
         self.assertEqual([u["first_name"] for u in con], ["Ana"])
-        self.assertEqual([u["first_name"] for u in sin], ["Luis"])
+        # La lista incluye también al staff/admin; aquí solo interesan los asistentes.
+        self.assertEqual([u["first_name"] for u in sin if not u["is_staff"]], ["Luis"])
 
         por_folio = self.client.get(f"/api/users/?search={folio}").json()["results"]
         self.assertEqual([u["first_name"] for u in por_folio], ["Ana"])

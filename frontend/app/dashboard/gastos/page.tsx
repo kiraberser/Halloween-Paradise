@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Pager } from "@/components/dashboard/Pager";
 import { api, apiError } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import { money } from "@/lib/event";
 
 type Mov = {
@@ -23,6 +24,8 @@ const CATEGORIAS = [
 const hoy = () => new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD local
 
 export default function GastosPage() {
+  // Solo el admin puede eliminar registros; el staff crea y edita.
+  const puedeBorrar = !!useAuth().user?.is_superuser;
   const [data, setData] = useState<Page | null>(null);
   const [page, setPage] = useState(1);
   const [filtro, setFiltro] = useState({ tipo: "", naturaleza: "" });
@@ -115,7 +118,7 @@ export default function GastosPage() {
                 <td className="px-3 py-2.5 text-white/60">{m.proveedor || "—"}</td>
                 <td className="px-3 py-2.5 font-semibold tabular-nums">{money(m.monto)}</td>
                 <td className="px-3 py-2.5">
-                  <button onClick={() => borrar(m)} className="text-white/40 hover:text-red-400" aria-label="Eliminar"><Trash2 size={16} /></button>
+                  {puedeBorrar && <button onClick={() => borrar(m)} className="text-white/40 hover:text-red-400" aria-label="Eliminar"><Trash2 size={16} /></button>}
                 </td>
               </tr>
             ))}

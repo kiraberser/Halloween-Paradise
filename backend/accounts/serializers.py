@@ -17,9 +17,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             "id", "username", "email", "first_name", "last_name", "telefono",
             "genero", "genero_display", "fecha_nacimiento", "foto_perfil",
-            "is_staff", "date_joined", "boleto",
+            "is_staff", "is_superuser", "date_joined", "boleto",
         )
-        read_only_fields = ("id", "username", "is_staff", "date_joined")
+        read_only_fields = ("id", "username", "is_staff", "is_superuser", "date_joined")
 
     def get_boleto(self, obj):
         boleto = boleto_activo(obj.compras.all())

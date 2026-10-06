@@ -28,6 +28,7 @@ export type User = {
   fecha_nacimiento: string | null;
   foto_perfil: string | null;
   is_staff: boolean;
+  is_superuser: boolean;
   date_joined: string;
   boleto: Boleto | null;
 };

@@ -1,4 +1,6 @@
-from rest_framework import permissions, viewsets
+from rest_framework import viewsets
+
+from core.permissions import IsStaffNoDelete
 
 from .models import MovimientoFinanciero
 from .serializers import MovimientoFinancieroSerializer
@@ -7,7 +9,7 @@ from .serializers import MovimientoFinancieroSerializer
 class MovimientoFinancieroViewSet(viewsets.ModelViewSet):
     queryset = MovimientoFinanciero.objects.all()
     serializer_class = MovimientoFinancieroSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsStaffNoDelete]
     filterset_fields = {
         "tipo": ["exact"],
         "naturaleza": ["exact"],
