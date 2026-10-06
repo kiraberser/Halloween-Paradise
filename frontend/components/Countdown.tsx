@@ -13,7 +13,8 @@ function diff(target: Date) {
   };
 }
 
-export function Countdown() {
+/** `compacto`: los recuadros se reparten el ancho disponible (para tarjetas angostas). */
+export function Countdown({ compacto = false }: { compacto?: boolean }) {
   const [left, setLeft] = useState<ReturnType<typeof diff> | null>(null);
 
   useEffect(() => {
@@ -23,16 +24,18 @@ export function Countdown() {
   }, []);
 
   return (
-    <div className="flex gap-2 sm:gap-4" aria-label="Cuenta regresiva para la fiesta">
+    <div className={`flex ${compacto ? "gap-2" : "gap-2 sm:gap-4"}`} aria-label="Cuenta regresiva para la fiesta">
       {Object.entries(left ?? { días: 0, horas: 0, min: 0, seg: 0 }).map(([label, value]) => (
         <div
           key={label}
-          className="min-w-[68px] rounded-xl border border-white/10 bg-night-2/80 px-3 py-2 text-center backdrop-blur sm:min-w-[84px]"
+          className={`rounded-xl border border-white/10 bg-night-2/80 py-2 text-center backdrop-blur ${
+            compacto ? "min-w-0 flex-1 px-1" : "min-w-[68px] px-3 sm:min-w-[84px]"
+          }`}
         >
           <div className="font-display text-3xl text-pumpkin tabular-nums sm:text-4xl">
             {left ? String(value).padStart(2, "0") : "--"}
           </div>
-          <div className="text-[11px] uppercase tracking-[0.2em] text-white/60">{label}</div>
+          <div className={`text-[11px] uppercase text-white/60 ${compacto ? "tracking-wider" : "tracking-[0.2em]"}`}>{label}</div>
         </div>
       ))}
     </div>
