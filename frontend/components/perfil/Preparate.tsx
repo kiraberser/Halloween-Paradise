@@ -65,7 +65,7 @@ export function Preparate({ user }: { user: User }) {
         <Clock size={15} className="mt-px shrink-0" />
         <span>
           Llega antes de las 11:00 PM
-          {user.genero === "M" ? ": si vienes disfrazada recibes un drink de bienvenida." : "; la entrada se llena rápido."}
+          {user.genero === "M" ? ": recibes un drink de bienvenida y en puerta pagas menos." : "; la entrada se llena rápido."}
         </span>
       </p>
     </Tarjeta>

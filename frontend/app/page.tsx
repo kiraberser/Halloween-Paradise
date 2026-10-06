@@ -20,10 +20,10 @@ const INCLUYE = [
 ];
 
 const FAQ = [
-  { q: "¿Tengo que registrarme?", a: "Sí. Todos los asistentes deben registrarse en la página, incluso quienes entran gratis. En la entrada te buscamos por tu nombre." },
+  { q: "¿Tengo que registrarme?", a: "Sí. Todos los asistentes deben registrarse en la página, incluso si pagan en la puerta. En la entrada te buscamos por tu nombre." },
   { q: "¿Cómo compro la preventa?", a: "Regístrate, da clic en “Comprar preventa” y escríbenos por Messenger o Instagram con tu correo registrado. Te damos los datos de pago y te apartamos tu lugar." },
-  { q: "¿Las mujeres entran gratis?", a: "Las mujeres disfrazadas entran gratis toda la noche; si llegan antes de las 11:00 PM además reciben un drink de bienvenida con vaso. Sin disfraz pagan $80." },
-  { q: "¿Es obligatorio ir disfrazado?", a: "No, pero conviene: el disfraz te da entrada gratis (mujeres) o más barata (hombres en puerta $90 en lugar de $120). Además hay concurso de disfraces." },
+  { q: "¿Cuánto pagan las mujeres?", a: "Preventa $50. En puerta, $80 antes de las 11:00 PM y $100 después. Todas las que lleguen antes de las 11:00 PM reciben un drink de bienvenida con vaso." },
+  { q: "¿Es obligatorio ir disfrazado?", a: "No, pero conviene: los hombres que pagan en puerta disfrazados pagan $100 en lugar de $150, y todos entran al concurso de disfraces." },
   { q: "¿Qué cuenta como disfraz?", a: "Disfraz completo o maquillaje de catrina/catrín. Unas orejitas o un accesorio no cuentan. El staff de la entrada tiene la última palabra." },
   { q: "¿Para qué es mi foto?", a: "Si subes tu foto en tu perfil, la imprimimos y la colocamos como parte de la decoración de la fiesta." },
   { q: "¿Hay edad mínima?", a: "Evento para mayores de edad. Se pedirá identificación en la entrada." },
@@ -58,7 +58,7 @@ export default function Home() {
               </p>
               <p className="rise rise-3 mt-4 inline-flex items-center gap-2 rounded-xl border border-witch-glow/50 bg-witch/25 px-4 py-2 text-sm text-bone">
                 <Sparkles size={16} className="shrink-0 text-pumpkin" />
-                <span><b>Mujeres disfrazadas entran gratis</b> + drink de bienvenida antes de las 11 PM</span>
+                <span><b>Preventa mujeres $50</b> · drink de bienvenida si llegas antes de las 11 PM</span>
               </p>
               <div className="rise rise-4 mt-8 flex flex-wrap items-center gap-3">
                 <Link href="/registro" className="btn-primary text-lg">Regístrate</Link>
@@ -91,7 +91,7 @@ export default function Home() {
           </div>
           <div className="mt-6 flex items-center gap-3 rounded-2xl border border-dashed border-pumpkin/40 p-5 text-white/80">
             <Shirt className="shrink-0 text-pumpkin" />
-            <p><b className="text-bone">Dress code:</b> disfraz completo o maquillaje de catrina/catrín. Venir disfrazado te sale gratis o más barato.</p>
+            <p><b className="text-bone">Dress code:</b> disfraz completo o maquillaje de catrina/catrín. Venir disfrazado te sale más barato y entras al concurso.</p>
           </div>
         </section>
 
@@ -100,7 +100,7 @@ export default function Home() {
           <div className="mx-auto max-w-6xl px-4">
             <SectionTitle kicker="Boletos" title="Aparta tu lugar" />
             <p className="mt-3 max-w-xl text-white/65">
-              Entre más temprano llegues y mejor disfrazado vengas, menos pagas. El cupo es limitado.
+              Compra tu preventa y paga menos. En puerta, llegar temprano (mujeres) o disfrazado (hombres) también te ahorra. El cupo es limitado.
             </p>
             <div className="relative mt-24 sm:mt-16">
               {/* El gato se sienta sobre el borde del primer recuadro (base del dibujo ≈ borde) */}

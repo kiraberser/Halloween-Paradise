@@ -18,7 +18,7 @@ export function InvitarAmigos() {
 
   const mensaje =
     `🎃 ¡Vamos a ${EVENT.name}! ${EVENT.dateLabel} en ${EVENT.city}. ` +
-    `Mujeres disfrazadas entran gratis (y con drink si llegan antes de las 11). Regístrate aquí: ${url}`;
+    `Preventa: mujeres $50 y hombres $80 (ellas con drink de bienvenida antes de las 11). Regístrate aquí: ${url}`;
 
   const compartir = async () => {
     try {

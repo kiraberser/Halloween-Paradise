@@ -1,14 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles, Ticket } from "lucide-react";
+import { useEffect, useState } from "react";
+import { GlassWater, Ticket } from "lucide-react";
 import { BuyButton } from "@/components/BuyTicket";
 import { TicketCard } from "@/components/TicketModal";
+import { api } from "@/lib/api";
 import type { User } from "@/lib/auth";
+import { money } from "@/lib/event";
 import { Tarjeta } from "./Tarjeta";
 
-/** Boleto en grande (listo para enseñar en la puerta) o cómo conseguirlo. */
+type Tipo = { id: number; nombre: string; precio: string; genero: string; modalidad: string; activo: boolean };
+
+/** Boleto en grande (listo para enseñar en la puerta) o cómo conseguirlo, con los precios vigentes. */
 export function MiBoleto({ user }: { user: User }) {
+  const [tipos, setTipos] = useState<Tipo[] | null>(null);
+  const tieneBoleto = !!user.boleto;
+
+  useEffect(() => {
+    if (tieneBoleto) return;
+    // Precios desde la API para no repetirlos a mano en el código.
+    api.get<Tipo[]>("/ticket-types/").then((r) => setTipos(r.data.filter((t) => t.activo))).catch(() => setTipos([]));
+  }, [tieneBoleto]);
+
   if (user.boleto) {
     return (
       <section aria-label="Mi boleto" className="mx-auto w-full max-w-sm">
@@ -17,32 +31,36 @@ export function MiBoleto({ user }: { user: User }) {
     );
   }
 
+  const propios = tipos?.filter((t) => t.genero === user.genero) ?? [];
+  const preventa = propios.find((t) => t.modalidad === "preventa");
+  const enPuerta = propios.filter((t) => t.modalidad === "puerta");
+
   return (
     <Tarjeta titulo="Mi boleto" icono={<Ticket size={16} />}>
-      {user.genero === "M" ? (
-        <div className="flex items-start gap-3">
-          <Sparkles className="mt-0.5 shrink-0 text-pumpkin" />
-          <div className="text-sm text-white/75">
-            <p className="text-base font-semibold text-bone">Tu entrada es gratis si vienes disfrazada.</p>
-            <p className="mt-1">
-              Antes de las 11 PM además recibes un drink de bienvenida. El staff registra tu boleto y aparecerá aquí;
-              sin disfraz la entrada es de $80.
+      <p className="text-base font-semibold text-bone">Aún no tienes boleto.</p>
+      {propios.length > 0 ? (
+        <>
+          <p className="mt-1 text-sm text-white/75">
+            Con la preventa pagas {preventa ? money(preventa.precio) : "menos"}. En puerta:{" "}
+            {enPuerta.map((t) => `${t.nombre.replace(/^(Mujer|Hombre)\s·\s/, "")} ${money(t.precio)}`).join(" · ")}.
+          </p>
+          {user.genero === "M" && (
+            <p className="mt-2 flex items-start gap-2 text-sm text-white/70">
+              <GlassWater size={16} className="mt-0.5 shrink-0 text-witch-glow" />
+              Si llegas antes de las 11 PM recibes un drink de bienvenida.
             </p>
-            <Link href="/#boletos" className="btn-ghost mt-4 !py-2 text-sm">Ver precios</Link>
-          </div>
-        </div>
-      ) : user.genero === "H" ? (
-        <div className="text-sm text-white/75">
-          <p className="text-base font-semibold text-bone">Aún no tienes boleto.</p>
-          <p className="mt-1">Con la preventa pagas $70 vengas o no disfrazado; en puerta son $90 disfrazado o $120 sin disfraz.</p>
-          <BuyButton className="btn-primary mt-4 w-full sm:w-auto">Comprar preventa · $70</BuyButton>
-        </div>
+          )}
+          {preventa && (
+            <BuyButton tipo={preventa.nombre} className="btn-primary mt-4 w-full sm:w-auto">
+              Comprar preventa · {money(preventa.precio)}
+            </BuyButton>
+          )}
+        </>
       ) : (
-        <div className="text-sm text-white/75">
-          <p className="text-base font-semibold text-bone">Aún no tienes boleto.</p>
-          <p className="mt-1">Cuando el staff lo registre aparecerá aquí con tu código QR.</p>
+        <>
+          <p className="mt-1 text-sm text-white/75">Cuando el staff lo registre aparecerá aquí con tu código QR.</p>
           <Link href="/#boletos" className="btn-ghost mt-4 !py-2 text-sm">Ver precios</Link>
-        </div>
+        </>
       )}
     </Tarjeta>
   );

@@ -12,7 +12,7 @@ class RolesTests(TestCase):
         self.admin = User.objects.create_superuser("admin", "admin@hp.mx", "x")
         self.socio = User.objects.create_user("socio@hp.mx", "socio@hp.mx", "x", first_name="Socio", is_staff=True)
         self.ana = User.objects.create_user("ana@hp.mx", "ana@hp.mx", "x", first_name="Ana")
-        tipo = TipoBoleto.objects.get(nombre="Mujer sin disfraz")
+        tipo = TipoBoleto.objects.get(nombre="Mujer · en puerta antes de 11 PM")
         self.venta = VentaBoleto.objects.create(nombre="Ana", tipo=tipo)
         self.gasto = MovimientoFinanciero.objects.create(concepto="Renta", tipo="costo", naturaleza="fijo", monto=100)
 

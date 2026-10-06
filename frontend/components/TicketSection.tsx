@@ -39,14 +39,12 @@ export function TicketSection() {
     api.get<Tipo[]>("/ticket-types/").then((r) => setTipos(r.data.filter((t) => t.activo))).catch(() => setError(true));
   }, []);
 
-  const preventa = tipos?.find((t) => t.modalidad === "preventa");
-
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-pumpkin/40 bg-pumpkin/10 p-4">
         <UserPlus className="shrink-0 text-pumpkin" />
         <p className="flex-1 text-sm text-white/85">
-          <b className="text-bone">Todos los asistentes deben registrarse en la página</b>, incluso quienes entran gratis.
+          <b className="text-bone">Todos los asistentes deben registrarse en la página</b>, incluso si pagan en la puerta.
           En la entrada te buscamos por tu nombre.
         </p>
         {!user && <Link href="/registro" className="btn-primary !px-5 !py-2 text-sm">Registrarme</Link>}
@@ -60,6 +58,7 @@ export function TicketSection() {
         <div className="grid gap-5 lg:grid-cols-2">
           {GRUPOS.map(({ genero, titulo, acento }) => {
             const filas = tipos?.filter((t) => t.genero === genero) ?? null;
+            const preventa = filas?.find((t) => t.modalidad === "preventa");
             return (
               <section key={genero} className={`rounded-2xl border bg-gradient-to-b to-night-2 p-5 sm:p-6 ${acento}`}>
                 <h3 className="font-display text-4xl">{titulo}</h3>
@@ -84,17 +83,16 @@ export function TicketSection() {
                   ))}
                 </ul>
 
-                {genero === "M" ? (
+                {genero === "M" && (
                   <p className="mt-4 flex items-start gap-2 text-sm text-white/70">
                     <GlassWater size={18} className="mt-0.5 shrink-0 text-witch-glow" />
-                    El drink de bienvenida con vaso es para mujeres disfrazadas que lleguen antes de las 11:00 PM.
+                    Todas las mujeres que lleguen antes de las 11:00 PM reciben un drink de bienvenida con vaso.
                   </p>
-                ) : (
-                  preventa && (
-                    <BuyButton tipo={preventa.nombre} className="btn-primary mt-4 w-full">
-                      Comprar preventa · {money(preventa.precio)}
-                    </BuyButton>
-                  )
+                )}
+                {preventa && (
+                  <BuyButton tipo={preventa.nombre} className="btn-primary mt-4 w-full">
+                    Comprar preventa · {money(preventa.precio)}
+                  </BuyButton>
                 )}
               </section>
             );
@@ -106,8 +104,9 @@ export function TicketSection() {
         <p className="flex items-start gap-3 rounded-2xl border border-white/10 bg-night-2 p-4 text-sm text-white/75">
           <Drama className="mt-0.5 shrink-0 text-pumpkin" />
           <span>
-            <b className="text-bone">¿Qué cuenta como disfraz?</b> Disfraz completo o maquillaje de catrina/catrín.
-            Unas orejitas o un accesorio no cuentan; el staff de la entrada tiene la última palabra.
+            <b className="text-bone">¿Qué cuenta como disfraz?</b> Disfraz completo o maquillaje de catrina/catrín
+            (para el precio de hombres en puerta). Unas orejitas o un accesorio no cuentan; el staff de la entrada
+            tiene la última palabra.
           </span>
         </p>
         <p className="flex items-start gap-3 rounded-2xl border border-white/10 bg-night-2 p-4 text-sm text-white/75">

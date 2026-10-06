@@ -4,22 +4,22 @@ from tickets.models import TipoBoleto, VentaBoleto
 
 
 class PreciosHalloweenTests(TestCase):
-    """La migración 0003 deja activos solo los 6 tipos del evento."""
+    """Las migraciones de precios dejan activos solo los 6 tipos vigentes del evento."""
 
     def test_tipos_activos_y_precios(self):
         activos = {t.nombre: (int(t.precio), t.genero, t.modalidad) for t in TipoBoleto.objects.filter(activo=True)}
         self.assertEqual(activos, {
-            "Mujer disfrazada · antes de 11 PM": (0, "M", "gratis"),
-            "Mujer disfrazada · después de 11 PM": (0, "M", "gratis"),
-            "Mujer sin disfraz": (80, "M", "puerta"),
-            "Hombre · preventa": (70, "H", "preventa"),
-            "Hombre disfrazado · en puerta": (90, "H", "puerta"),
-            "Hombre sin disfraz · en puerta": (120, "H", "puerta"),
+            "Mujer · preventa": (50, "M", "preventa"),
+            "Mujer · en puerta antes de 11 PM": (80, "M", "puerta"),
+            "Mujer · general (después de 11 PM)": (100, "M", "puerta"),
+            "Hombre · preventa": (80, "H", "preventa"),
+            "Hombre disfrazado · en puerta": (100, "H", "puerta"),
+            "Hombre sin disfraz · en puerta": (150, "H", "puerta"),
         })
 
     def test_venta_toma_genero_del_tipo(self):
         venta = VentaBoleto.objects.create(nombre="Luis", tipo=TipoBoleto.objects.get(nombre="Hombre · preventa"))
-        self.assertEqual((venta.genero, int(venta.total)), ("H", 70))
+        self.assertEqual((venta.genero, int(venta.total)), ("H", 80))
 
     def test_api_publica_expone_modalidad(self):
         data = self.client.get("/api/ticket-types/").json()
@@ -34,22 +34,22 @@ class BoletoUsuarioTests(TestCase):
         self.admin = User.objects.create_superuser("admin", "admin@hp.mx", "x")
         self.ana = User.objects.create_user("ana@hp.mx", "ana@hp.mx", "x", first_name="Ana", genero="M")
         self.luis = User.objects.create_user("luis@hp.mx", "luis@hp.mx", "x", first_name="Luis", genero="H")
-        self.gratis = TipoBoleto.objects.get(nombre="Mujer disfrazada · antes de 11 PM")
+        self.preventa_m = TipoBoleto.objects.get(nombre="Mujer · preventa")
 
     def test_folio_y_codigo_unicos(self):
-        a = VentaBoleto.objects.create(nombre="A", tipo=self.gratis)
-        b = VentaBoleto.objects.create(nombre="B", tipo=self.gratis)
+        a = VentaBoleto.objects.create(nombre="A", tipo=self.preventa_m)
+        b = VentaBoleto.objects.create(nombre="B", tipo=self.preventa_m)
         self.assertNotEqual(a.codigo, b.codigo)
         self.assertRegex(a.folio, r"^HP-[0-9A-F]{8}$")
 
     def test_staff_asigna_boleto_y_lista_usuarios(self):
         self.client.force_login(self.admin)
-        resp = self.client.post("/api/sales/", {"nombre": "Ana", "tipo": self.gratis.pk, "usuario": self.ana.pk})
+        resp = self.client.post("/api/sales/", {"nombre": "Ana", "tipo": self.preventa_m.pk, "usuario": self.ana.pk})
         self.assertEqual(resp.status_code, 201, resp.content)
         folio = resp.json()["folio"]
 
         # No se puede asignar un segundo boleto vigente.
-        dup = self.client.post("/api/sales/", {"nombre": "Ana", "tipo": self.gratis.pk, "usuario": self.ana.pk})
+        dup = self.client.post("/api/sales/", {"nombre": "Ana", "tipo": self.preventa_m.pk, "usuario": self.ana.pk})
         self.assertEqual(dup.status_code, 400)
 
         data = self.client.get("/api/users/").json()["results"]
@@ -67,13 +67,13 @@ class BoletoUsuarioTests(TestCase):
         self.assertEqual([u["first_name"] for u in por_folio], ["Ana"])
 
     def test_usuario_ve_su_boleto_y_no_la_lista(self):
-        venta = VentaBoleto.objects.create(nombre="Ana", tipo=self.gratis, usuario=self.ana)
+        venta = VentaBoleto.objects.create(nombre="Ana", tipo=self.preventa_m, usuario=self.ana)
         self.client.force_login(self.ana)
         self.assertEqual(self.client.get("/api/auth/me/").json()["boleto"]["folio"], venta.folio)
         self.assertEqual(self.client.get("/api/users/").status_code, 403)
 
     def test_cancelado_no_cuenta_como_boleto(self):
-        VentaBoleto.objects.create(nombre="Luis", tipo=self.gratis, usuario=self.luis, estado="cancelado")
+        VentaBoleto.objects.create(nombre="Luis", tipo=self.preventa_m, usuario=self.luis, estado="cancelado")
         self.client.force_login(self.luis)
         self.assertIsNone(self.client.get("/api/auth/me/").json()["boleto"])
 
@@ -84,7 +84,7 @@ class EntradaTests(TestCase):
 
         self.admin = User.objects.create_superuser("admin", "admin@hp.mx", "x")
         self.ana = User.objects.create_user("ana@hp.mx", "ana@hp.mx", "x", first_name="Ana", genero="M")
-        tipo = TipoBoleto.objects.get(nombre="Mujer sin disfraz")
+        tipo = TipoBoleto.objects.get(nombre="Mujer · en puerta antes de 11 PM")
         self.venta = VentaBoleto.objects.create(nombre="Ana", tipo=tipo, usuario=self.ana)
         self.client.force_login(self.admin)
 
