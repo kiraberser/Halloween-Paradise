@@ -39,7 +39,7 @@ class User(AbstractUser):
             FileExtensionValidator(["jpg", "jpeg", "png", "webp"]),
             validar_tamano_foto,
         ],
-        help_text="Se imprimirá para la ofrenda de Día de Muertos.",
+        help_text="Se imprimirá como parte de la decoración de la fiesta.",
     )
 
     class Meta:

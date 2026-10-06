@@ -43,7 +43,7 @@ export function PhotoPicker({
       </span>
       <span className="text-sm text-white/70">
         <b className="block text-bone">{preview ? "Cambiar foto" : "Sube tu foto"}</b>
-        Se imprimirá para la ofrenda de Día de Muertos. Que se vea bien tu cara. JPG/PNG, máx. {MAX_MB} MB.
+        La imprimiremos como parte de la decoración de la fiesta. Que se vea bien tu cara. JPG/PNG, máx. {MAX_MB} MB.
       </span>
       <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={handle} />
     </label>

@@ -18,7 +18,7 @@ const bricolage = Bricolage_Grotesque({
 export const metadata: Metadata = {
   title: "Halloween Paradise — 31 de octubre · Martínez de la Torre",
   description:
-    "La fiesta de Halloween más grande de Martínez de la Torre, Veracruz. 31 de octubre. Compra tu boleto y súbete a la ofrenda.",
+    "La fiesta de Halloween más grande de Martínez de la Torre, Veracruz. 31 de octubre. Regístrate y sube tu foto para la decoración de la fiesta.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

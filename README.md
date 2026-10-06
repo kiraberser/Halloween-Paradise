@@ -12,7 +12,7 @@ Landing, venta de boletos y dashboard para la fiesta **Halloween Paradise** — 
 | Landing con cuenta regresiva, boletos (precios desde la API), FAQ y mapa | Registro con foto de perfil | Dashboard con KPIs: boletos, ingresos, costos, gastos, utilidad, usuarios |
 | Botón **Comprar boleto** → Messenger / Instagram | Editar perfil y cambiar foto | Gráficas: registros en el tiempo, género, edad, tipo de boleto, canal, gastos por categoría, fijos vs variables |
 | | | Captura de ventas y de costos/gastos |
-| | | **Hoja de ofrenda** imprimible con las fotos de perfil |
+| | | **Imágenes**: fotos de perfil listas para imprimir como decoración |
 | | | Django Admin en `/admin/` |
 
 ## Despliegue: backend en Railway + frontend en Vercel
@@ -71,7 +71,7 @@ Repositorio: https://github.com/kiraberser/Halloween-Paradise
 Con un dominio propio, agrégalo a `DJANGO_ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS` y `CORS_ALLOWED_ORIGINS`, y redespliega en Vercel si cambia `NEXT_PUBLIC_API_URL`.
 
 ### Imágenes en Cloudinary
-Con `CLOUDINARY_URL` definida, las fotos de perfil y los comprobantes se suben a `CLOUDINARY_FOLDER/perfiles` y `CLOUDINARY_FOLDER/comprobantes`. Al cambiar la foto se borra la anterior. La hoja de ofrenda usa una versión recortada 4:5 centrada en la cara (`c_fill,g_face`) para imprimir. Sin `CLOUDINARY_URL`, los archivos se guardan en disco (desarrollo local).
+Con `CLOUDINARY_URL` definida, las fotos de perfil y los comprobantes se suben a `CLOUDINARY_FOLDER/perfiles` y `CLOUDINARY_FOLDER/comprobantes`. Al cambiar la foto se borra la anterior. La hoja de fotos para imprimir usa una versión recortada 4:5 centrada en la cara (`c_fill,g_face`) para imprimir. Sin `CLOUDINARY_URL`, los archivos se guardan en disco (desarrollo local).
 
 ## Arranque con Docker
 
@@ -122,7 +122,7 @@ Variables del frontend en `frontend/.env.local` (`NEXT_PUBLIC_API_URL`, `NEXT_PU
 | `CRUD sales/` — filtros `estado`, `tipo`, `canal`, `genero`, `fecha_venta__date__gte/lte`, `search` | staff |
 | `CRUD expenses/` — filtros `tipo`, `naturaleza`, `categoria`, `fecha__gte/lte` | staff |
 | `GET dashboard/kpis/` · `demographics/` · `timeline/` · `sales-breakdown/` · `expenses-breakdown/` | staff |
-| `GET users/photos/` (fotos para la ofrenda) | staff |
+| `GET users/photos/` (fotos para imprimir como decoración) | staff |
 
 Los ingresos y boletos vendidos solo cuentan ventas con estado **Pagado**.
 

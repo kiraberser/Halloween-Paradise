@@ -15,7 +15,7 @@ export function Navbar() {
           Halloween <span className="text-witch-glow">Paradise</span>
         </Link>
         <div className="flex items-center gap-1.5 text-sm sm:gap-2">
-          <Link href="/#ofrenda" className="hidden px-3 py-2 text-white/75 hover:text-bone md:inline">Ofrenda</Link>
+          <Link href="/#decoracion" className="hidden px-3 py-2 text-white/75 hover:text-bone md:inline">Decoración</Link>
           <Link href="/#faq" className="hidden px-3 py-2 text-white/75 hover:text-bone md:inline">FAQ</Link>
           {!loading &&
             (user ? (

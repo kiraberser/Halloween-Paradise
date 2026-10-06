@@ -92,7 +92,7 @@ export function BuyTicketProvider({ children }: { children: React.ReactNode }) {
               <>
                 <p className="mt-2 text-sm text-white/70">
                   Todos los asistentes necesitan registro en la página, incluso quienes entran gratis.
-                  Es rápido y de paso subes tu foto para la ofrenda.
+                  Es rápido y de paso subes tu foto para la decoración.
                 </p>
                 <div className="mt-6 grid gap-3">
                   <Link href="/registro" onClick={close} className="btn-primary w-full">

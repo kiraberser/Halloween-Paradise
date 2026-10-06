@@ -78,8 +78,51 @@ body {
 .rise-3 { animation-delay: .4s; }
 .rise-4 { animation-delay: .55s; }
 
+/* --- Personajes de la landing (ambiente: curvas sine, ciclos de 3–5 s) --- */
+
+/* Pétalos: caen con deriva lateral (--deriva) y giran */
+@keyframes caer {
+  0% { transform: translate3d(0, -5vh, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.9; }
+  50% { transform: translate3d(var(--deriva, 20px), 45vh, 0) rotate(180deg); }
+  90% { opacity: 0.8; }
+  100% { transform: translate3d(0, 95vh, 0) rotate(360deg); opacity: 0; }
+}
+.petalo { animation: caer 12s ease-in-out infinite both; will-change: transform; }
+
+/* Murciélagos: aleteo desde el cuerpo */
+@keyframes aletear { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.35); } }
+.ala { animation: aletear 0.28s ease-in-out infinite; transform-box: fill-box; transform-origin: center bottom; }
+.ala-der { animation-delay: 0.02s; }
+
+/* Fantasma: flota y su borde ondea (movimiento secundario) */
+@keyframes flotar-fantasma { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-8px) rotate(2deg); } }
+.fantasma-flota { animation: flotar-fantasma 3.2s ease-in-out infinite; }
+@keyframes ondear { 0%, 100% { transform: skewX(0deg); } 50% { transform: skewX(-4deg); } }
+.fantasma-cola { animation: ondear 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center top; }
+
+/* Gato: cola que se mece, parpadeo ocasional y ojos que brillan en alerta */
+@keyframes mecer-cola { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(8deg); } }
+.gato-cola { animation: mecer-cola 3.6s ease-in-out infinite; transform-box: fill-box; transform-origin: left bottom; }
+@keyframes parpadeo { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.08); } }
+.gato-parpadeo { animation: parpadeo 4.5s ease-in-out infinite; }
+@keyframes brillar { 0%, 100% { filter: drop-shadow(0 0 2px #ff6b00); } 50% { filter: drop-shadow(0 0 6px #ff9a3d); } }
+.gato-ojo-brilla { animation: brillar 1.2s ease-in-out infinite; }
+
+/* Calabaza: luz de vela que titila dentro de los cortes */
+@keyframes vela {
+  0%, 100% { opacity: 0.85; }
+  20% { opacity: 0.55; }
+  35% { opacity: 0.95; }
+  60% { opacity: 0.65; }
+  80% { opacity: 1; }
+}
+.vela { animation: vela 2.6s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-float, .animate-sway, .rise { animation: none; }
+  .animate-float, .animate-sway, .rise,
+  .ala, .fantasma-flota, .fantasma-cola, .gato-cola, .gato-parpadeo, .gato-ojo-brilla, .vela { animation: none; }
+  .petalo { display: none; }
 }
 
 @layer components {
@@ -96,7 +139,7 @@ body {
   }
 }
 
-/* Impresión de la hoja de ofrenda */
+/* Impresión de la hoja de fotos (Imágenes) */
 @media print {
   .no-print { display: none !important; }
   body { background: white !important; color: black !important; }
