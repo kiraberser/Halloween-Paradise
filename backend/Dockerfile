@@ -10,7 +10,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 RUN chmod +x release.sh \
-    && DJANGO_BUILD=1 python manage.py collectstatic --noinput
+    && DJANGO_BUILD=1 python manage.py collectstatic --noinput \
+    # Usuario sin privilegios: si alguien lograra ejecutar código, no sería root en el contenedor.
+    && useradd --create-home --uid 1000 app \
+    && mkdir -p /app/media \
+    && chown -R app:app /app
+
+USER app
 
 EXPOSE 8000
 # Railway define PORT; en local se usa 8000.

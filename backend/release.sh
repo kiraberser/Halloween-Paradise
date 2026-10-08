@@ -3,6 +3,8 @@
 set -e
 
 python manage.py migrate --noinput
+# Tabla de caché compartida (la usan los límites de peticiones).
+python manage.py createcachetable
 
 # Crea el superuser si se definieron DJANGO_SUPERUSER_* y aún no existe.
 if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then

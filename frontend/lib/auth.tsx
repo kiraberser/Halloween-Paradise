@@ -78,6 +78,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
+    // Revoca el refresh token en el servidor (sin esperar: si falla, la sesión local se cierra igual).
+    const refresh = tokens.refresh;
+    if (refresh) api.post("/auth/logout/", { refresh }).catch(() => {});
     tokens.clear();
     setUser(null);
   };

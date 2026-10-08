@@ -9,6 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from core.permissions import IsStaffNoDelete, IsStaffOrReadOnly
+from core.seguridad import evento
 
 from .models import TipoBoleto, VentaBoleto
 from .serializers import EntradaSerializer, TipoBoletoSerializer, VentaBoletoSerializer
@@ -40,6 +41,10 @@ class VentaBoletoViewSet(viewsets.ModelViewSet):
     search_fields = ("nombre", "notas")
     ordering_fields = ("fecha_venta", "cantidad", "precio")
 
+    def perform_destroy(self, instance):
+        evento("venta_borrada", self.request, folio=instance.folio, nombre=instance.nombre, total=instance.total)
+        instance.delete()
+
     @action(detail=False, methods=["get"])
     def lookup(self, request):
         """Busca un boleto por el contenido del QR (UUID completo) o por su folio HP-XXXXXXXX."""
@@ -67,6 +72,7 @@ class VentaBoletoViewSet(viewsets.ModelViewSet):
                 venta.ingreso = None
                 venta.ingreso_por = None
                 venta.save(update_fields=["ingreso", "ingreso_por"])
+                evento("entrada_deshecha", request, folio=venta.folio)
             else:
                 error = None
                 if venta.estado == VentaBoleto.Estado.CANCELADO:
@@ -82,5 +88,6 @@ class VentaBoletoViewSet(viewsets.ModelViewSet):
                 venta.ingreso = timezone.now()
                 venta.ingreso_por = request.user
                 venta.save(update_fields=["estado", "ingreso", "ingreso_por"])
+                evento("entrada_marcada", request, folio=venta.folio, cobrado=bool(request.data.get("cobrar")))
         venta = VentaBoleto.objects.select_related("tipo", "usuario", "ingreso_por").get(pk=venta.pk)
         return Response(EntradaSerializer(venta, context={"request": request}).data)

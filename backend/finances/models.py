@@ -1,6 +1,15 @@
-from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
+
+
+MAX_COMPROBANTE_MB = 10
+
+
+def validar_tamano(archivo):
+    if archivo.size > MAX_COMPROBANTE_MB * 1024 * 1024:
+        raise ValidationError(f"El comprobante no puede pesar más de {MAX_COMPROBANTE_MB} MB.")
 
 
 class MovimientoFinanciero(models.Model):
@@ -33,7 +42,11 @@ class MovimientoFinanciero(models.Model):
     monto = models.DecimalField(max_digits=12, decimal_places=2, validators=[MinValueValidator(0)])
     fecha = models.DateField(default=timezone.localdate)
     proveedor = models.CharField(max_length=150, blank=True)
-    comprobante = models.FileField(upload_to="comprobantes/", null=True, blank=True)
+    comprobante = models.FileField(
+        upload_to="comprobantes/", null=True, blank=True,
+        # Solo PDF o imágenes (sin SVG/HTML, que pueden llevar scripts) y máximo 10 MB.
+        validators=[FileExtensionValidator(["pdf", "jpg", "jpeg", "png", "webp"]), validar_tamano],
+    )
     notas = models.TextField(blank=True)
     creado = models.DateTimeField(auto_now_add=True)
 

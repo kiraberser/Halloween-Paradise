@@ -5,9 +5,10 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from core.permissions import IsSuperuser
+from core.seguridad import evento
 from tickets.models import VentaBoleto
 
 from .models import User
@@ -18,10 +19,16 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+    throttle_scope = "registro"  # frena el registro masivo de cuentas falsas
 
 
 class EmailTokenObtainPairView(TokenObtainPairView):
     serializer_class = EmailTokenObtainPairSerializer
+    throttle_scope = "login"  # frena los intentos de adivinar contraseñas
+
+
+class RefreshView(TokenRefreshView):
+    throttle_scope = "login"
 
 
 class MeView(generics.RetrieveUpdateAPIView):
@@ -102,4 +109,5 @@ class StaffToggleView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
         user.is_staff = bool(request.data.get("is_staff"))
         user.save(update_fields=["is_staff"])
+        evento("staff_cambiado", request, usuario=user.get_username(), is_staff=user.is_staff)
         return Response(UserSerializer(user, context={"request": request}).data)

@@ -6,9 +6,10 @@ from django.urls import include, path, re_path
 from django.views.static import serve
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from core.permissions import DocsPermission
+
 admin.site.site_header = "Halloween Paradise — Administración"
 admin.site.site_title = "Halloween Paradise"
-
 
 
 def health(request):
@@ -20,13 +21,13 @@ def health(request):
 
 urlpatterns = [
     path("api/health/", health, name="health"),
-    path("admin/", admin.site.urls),
+    path(settings.ADMIN_URL, admin.site.urls),
     path("api/", include("accounts.urls")),
     path("api/", include("tickets.urls")),
     path("api/", include("finances.urls")),
     path("api/dashboard/", include("dashboard.urls")),
-    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
+    path("api/schema/", SpectacularAPIView.as_view(permission_classes=[DocsPermission]), name="schema"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema", permission_classes=[DocsPermission]), name="docs"),
 ]
 
 if settings.SERVE_MEDIA:

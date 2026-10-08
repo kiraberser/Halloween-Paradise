@@ -31,6 +31,19 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 
+# Cabeceras de seguridad en producción (Railway siempre sirve por HTTPS).
+EN_RAILWAY = bool(RAILWAY_PUBLIC_DOMAIN)
+SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=EN_RAILWAY, cast=bool)
+SECURE_REDIRECT_EXEMPT = [r"^api/health/$"]  # el healthcheck interno de Railway llega por HTTP
+SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default=60 * 60 * 24 * 30 if EN_RAILWAY else 0, cast=int)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = "DENY"
+
+# Ruta del admin de Django: conviene cambiarla en producción (p. ej. ADMIN_URL=panel-hp-7x2/).
+ADMIN_URL = config("ADMIN_URL", default="admin/")
+# Documentación de la API (Swagger): pública solo en desarrollo; en producción, solo staff.
+API_DOCS_PUBLIC = config("API_DOCS_PUBLIC", default=DEBUG, cast=bool)
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -41,10 +54,12 @@ INSTALLED_APPS = [
     # Terceros
     "rest_framework",
     "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "django_filters",
     "drf_spectacular",
     # Locales
+    "core",
     "accounts",
     "tickets",
     "finances",
@@ -88,6 +103,11 @@ DATABASES = {
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
     )
+}
+
+# Caché en la base de datos: compartida entre los workers de gunicorn (la usan los límites de peticiones).
+CACHES = {
+    "default": {"BACKEND": "django.core.cache.backends.db.DatabaseCache", "LOCATION": "cache_paradise"},
 }
 
 AUTH_USER_MODEL = "accounts.User"
@@ -148,11 +168,33 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 50,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    # La API navegable solo en desarrollo; en producción, únicamente JSON.
+    "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"]
+    + (["rest_framework.renderers.BrowsableAPIRenderer"] if DEBUG else []),
+    # Límites de peticiones por IP (anónimos) y por usuario. Los límites son holgados porque mucha
+    # gente comparte IP en datos móviles; login y registro tienen límites propios más estrictos.
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+        "rest_framework.throttling.ScopedRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": config("THROTTLE_ANON", default="300/min"),
+        "user": config("THROTTLE_USER", default="600/min"),
+        "login": config("THROTTLE_LOGIN", default="15/min"),
+        "registro": config("THROTTLE_REGISTRO", default="30/hour"),
+    },
+    # Detrás del proxy de Railway la IP real llega en X-Forwarded-For (1 salto).
+    "NUM_PROXIES": config("NUM_PROXIES", default=1 if EN_RAILWAY else 0, cast=int),
 }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    # Cada renovación entrega un refresh nuevo e invalida el anterior (y el logout lo revoca).
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
 }
 
 SPECTACULAR_SETTINGS = {
@@ -168,3 +210,16 @@ CORS_ALLOWED_ORIGIN_REGEXES = config("CORS_ALLOWED_ORIGIN_REGEXES", default="", 
 # Datos del evento
 EVENT_NAME = "Halloween Paradise"
 EVENT_CAPACITY = config("EVENT_CAPACITY", default=500, cast=int)
+
+# Registro de eventos de seguridad (logins fallidos, cambios de permisos, borrados) en la consola,
+# que Railway guarda en sus logs.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {"simple": {"format": "{levelname} {name} {message}", "style": "{"}},
+    "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "simple"}},
+    "loggers": {
+        "django.security": {"handlers": ["console"], "level": "WARNING", "propagate": False},
+        "paradise.seguridad": {"handlers": ["console"], "level": "INFO", "propagate": False},
+    },
+}

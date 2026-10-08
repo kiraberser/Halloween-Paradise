@@ -19,7 +19,8 @@ class UserSerializer(serializers.ModelSerializer):
             "genero", "genero_display", "fecha_nacimiento", "foto_perfil",
             "is_staff", "is_superuser", "date_joined", "boleto",
         )
-        read_only_fields = ("id", "username", "is_staff", "is_superuser", "date_joined")
+        # El correo es el usuario de login: no se cambia desde el perfil (evita duplicados y suplantación).
+        read_only_fields = ("id", "username", "email", "is_staff", "is_superuser", "date_joined")
 
     def get_boleto(self, obj):
         boleto = boleto_activo(obj.compras.all())

@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "backend-security-coder": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/backend-security-coder/SKILL.md",
+      "computedHash": "d260a70f12f4dfd10662482afad4c1c2c48e2d29be23b85de9ab74680cf777d4"
+    },
     "motion-design": {
       "source": "LottieFiles/motion-design-skill",
       "sourceType": "github",

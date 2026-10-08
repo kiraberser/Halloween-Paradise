@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import permissions
 
 
@@ -31,3 +32,10 @@ class IsSuperuser(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_superuser)
+
+
+class DocsPermission(permissions.BasePermission):
+    """Documentación de la API: pública en desarrollo (API_DOCS_PUBLIC); en producción, solo staff."""
+
+    def has_permission(self, request, view):
+        return settings.API_DOCS_PUBLIC or bool(request.user and request.user.is_staff)
